@@ -54,7 +54,7 @@ func PostEventHandler(w http.ResponseWriter, r *http.Request) {
 	_, err = strconv.Atoi(r.PostFormValue("amount"))
 	if err != nil {
 			
-		io.WriteString(w, "404 invalid id format")
+		io.WriteString(w, "404 invalid amount format")
 		return
 	}
 	// destination := r.PostFormValue("destination")

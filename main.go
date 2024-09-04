@@ -19,7 +19,11 @@ func main() {
 	ctx := context.Background()
 
 	handlers := http.NewServeMux()
-	handlers.HandleFunc("/", handler.GetRoot)
+	handlers.HandleFunc("/", handler.GetRootHandler)
+	handlers.HandleFunc("/balance", handler.GetBalanceHandler)
+	handlers.HandleFunc("/event", handler.PostEventHandler) 
+	handlers.HandleFunc("/delete", handler.PostDeleteHandler) 
+	
 
 	server := &http.Server{
 		Addr:    constants.PORT,

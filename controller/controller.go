@@ -106,7 +106,7 @@ func (s *accountController) PostTransferEventController(originId string, targetI
 	}
 	targetAccount, exists := s.accountService.GetAccount(targetId)
 	if exists == false {
-		return "0", errors.ErrTargetAccountNotFound
+		s.accountService.AddAccount(targetId, 0)
 	}
 	if originAccount.Balance < amount {
 		return "0", errors.ErrInsufficientFunds

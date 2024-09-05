@@ -86,11 +86,11 @@ func (h *accountHandler) PostEventHandler(w http.ResponseWriter, req *http.Reque
 
 	switch event.Type {
 	case "deposit":
-		res, err = h.accountController.PostDepositEventController(event.Origin, event.Amount)
+		res, err = h.accountController.PostDepositEventController(*event.Destination, event.Amount)
 	case "withdraw":
-		res, err = h.accountController.PostWithdrawEventController(event.Origin, event.Amount)
+		res, err = h.accountController.PostWithdrawEventController(*event.Origin, event.Amount)
 	case "transfer":
-		res, err = h.accountController.PostTransferEventController(event.Origin, *event.Destination, event.Amount)
+		res, err = h.accountController.PostTransferEventController(*event.Origin, *event.Destination, event.Amount)
 	default:
 		err = errors.ErrInvalidEventType
 	}

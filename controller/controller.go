@@ -40,8 +40,8 @@ func (s *accountController) GetBalanceController(originId string) (string, error
 	return strconv.Itoa(account.Balance), nil
 }
 
-func (s *accountController) PostDepositEventController(originId string, amount int) (string, error) {
-	if originId == "" {
+func (s *accountController) PostDepositEventController(destinationId string, amount int) (string, error) {
+	if destinationId == "" {
 		return "0", errors.ErrMissingOriginId
 	}
 
@@ -49,10 +49,10 @@ func (s *accountController) PostDepositEventController(originId string, amount i
 		err := errors.ErrInvalidAmountFormat
 		return "0", err
 	}
-	account, exists := s.accountService.GetAccount(originId)
+	account, exists := s.accountService.GetAccount(destinationId)
 	if exists == false {
-		s.accountService.AddAccount(originId, amount)
-		res := fmt.Sprintf("{\"destination\": {\"id\":\"%s\", \"balance\":%d}}", originId, amount)
+		s.accountService.AddAccount(destinationId, amount)
+		res := fmt.Sprintf("{\"destination\": {\"id\":\"%s\", \"balance\":%d}}", destinationId, amount)
 		return res, nil
 	}
 

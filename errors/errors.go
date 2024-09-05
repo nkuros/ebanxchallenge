@@ -16,4 +16,5 @@ var (
 	ErrInvalidEventType      = errors.New("invalid event type")
 	ErrInsufficientFunds     = errors.New("insufficient funds")
 	ErrMissingBody           = errors.New("missing body")
+	ErrAccountCreationFailed = errors.New("account creation failed")
 )

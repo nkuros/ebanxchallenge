@@ -24,6 +24,20 @@ func TestGetAccount(t *testing.T) {
 	}
 
 }
+func TestGetAccountNotFound(t *testing.T) {
+	ctrl :=	gomock.NewController(t)
+	service := mock_service.NewMockAccountService(ctrl)
+	service.EXPECT().GetAccount("1").Return(nil, false)
+
+	account, exists := service.GetAccount("1")
+	if exists == true {
+		t.Errorf("Expected false, got %t", exists)
+	}
+	if account != nil {
+		t.Errorf("Expected nil, got %v", account)
+	}
+}
+
 
 func TestAddAccount(t *testing.T) {
 	ctrl :=	gomock.NewController(t)
@@ -39,4 +53,14 @@ func TestAddAccount(t *testing.T) {
 	} else {
 		t.Errorf("Account not created")
 	}
+}
+
+func TestAddAccountAlreadyExists(t *testing.T) {
+	ctrl :=	gomock.NewController(t)
+	service := mock_service.NewMockAccountService(ctrl)
+	service.EXPECT().AddAccount("1", 100).Return(&entity.Account{Id: "1", Balance: 100}, true)
+	service.AddAccount("1", 100)
+
+	service.EXPECT().AddAccount("1", 100).Return(&entity.Account{Id: "1", Balance: 100}, false)
+	service.AddAccount("1", 100)
 }

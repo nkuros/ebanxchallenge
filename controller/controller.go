@@ -28,11 +28,11 @@ func NewAccountController(accountService service.AccountService) AccountControll
 	return &accountController{accountService}
 }
 
-func (s *accountController) GetBalanceController(originId string) (string, error) {
+func (c *accountController) GetBalanceController(originId string) (string, error) {
 	if originId == "" {
 		return "0", errors.ErrMissingOriginId
 	}
-	account, exists := s.accountService.GetAccount(originId)
+	account, exists := c.accountService.GetAccount(originId)
 	if exists == false {
 		return "0", errors.ErrOriginAccountNotFound
 	}
@@ -40,7 +40,7 @@ func (s *accountController) GetBalanceController(originId string) (string, error
 	return strconv.Itoa(account.Balance), nil
 }
 
-func (s *accountController) PostDepositEventController(destinationId string, amount int) (string, error) {
+func (c *accountController) PostDepositEventController(destinationId string, amount int) (string, error) {
 	if destinationId == "" {
 		return "0", errors.ErrMissingOriginId
 	}
@@ -49,9 +49,12 @@ func (s *accountController) PostDepositEventController(destinationId string, amo
 		err := errors.ErrInvalidAmountFormat
 		return "0", err
 	}
-	account, exists := s.accountService.GetAccount(destinationId)
+	account, exists := c.accountService.GetAccount(destinationId)
 	if exists == false {
-		s.accountService.AddAccount(destinationId, amount)
+		_, created := c.accountService.AddAccount(destinationId, amount)
+		if created == false {
+			return "0", errors.ErrAccountCreationFailed
+		}
 		res := fmt.Sprintf("{\"destination\": {\"id\":\"%s\", \"balance\":%d}}", destinationId, amount)
 		return res, nil
 	}
@@ -61,7 +64,7 @@ func (s *accountController) PostDepositEventController(destinationId string, amo
 	return res, nil
 }
 
-func (s *accountController) PostWithdrawEventController(originId string, amount int) (string, error) {
+func (c *accountController) PostWithdrawEventController(originId string, amount int) (string, error) {
 	if originId == "" {
 		return "0", errors.ErrMissingOriginId
 	}
@@ -70,7 +73,7 @@ func (s *accountController) PostWithdrawEventController(originId string, amount 
 		return "0", err
 	}
 
-	account, exists := s.accountService.GetAccount(originId)
+	account, exists := c.accountService.GetAccount(originId)
 
 	if exists == false {
 		return "0", errors.ErrOriginAccountNotFound
@@ -84,7 +87,7 @@ func (s *accountController) PostWithdrawEventController(originId string, amount 
 	return res, nil
 }
 
-func (s *accountController) PostTransferEventController(originId string, targetId string, amount int) (string, error) {
+func (c *accountController) PostTransferEventController(originId string, targetId string, amount int) (string, error) {
 	if originId == "" {
 		return "0", errors.ErrMissingOriginId
 	}
@@ -99,14 +102,16 @@ func (s *accountController) PostTransferEventController(originId string, targetI
 		err := errors.ErrInvalidAmountFormat
 		return "0", err
 	}
-	originAccount, exists := s.accountService.GetAccount(originId)
-
+	originAccount, exists := c.accountService.GetAccount(originId)
 	if exists == false {
 		return "0", errors.ErrOriginAccountNotFound
 	}
-	targetAccount, exists := s.accountService.GetAccount(targetId)
+	targetAccount, exists := c.accountService.GetAccount(targetId)
 	if exists == false {
-		s.accountService.AddAccount(targetId, 0)
+		targetAccount, exists = c.accountService.AddAccount(targetId, 0)
+		if exists == false {
+			return "0", errors.ErrAccountCreationFailed
+		}
 	}
 	if originAccount.Balance < amount {
 		return "0", errors.ErrInsufficientFunds

@@ -183,7 +183,7 @@ func TestTransferMissingTargetId(t *testing.T) {
 	_, err := controller.PostTransferEventController("1", "", 50)
 
 	if err != errors.ErrMissingDestinationId {
-		t.Errorf("Expected ErrMissingTargetId, got %s", err)
+		t.Errorf("Expected ErrMissingDestinationId, got %s", err)
 	}
 }
 
@@ -213,6 +213,48 @@ func TestTransferInsufficientFunds(t *testing.T) {
 	if err != errors.ErrInsufficientFunds {
 		t.Errorf("Expected ErrInsufficientFunds, got %s", err)
 	}
+}
+
+func TestTransferSameAccount(t *testing.T) {
+	service := mock_service.NewMockAccountService(gomock.NewController(t))
+	controller := NewAccountController(service)
+
+	_, err := controller.PostTransferEventController("1", "1", 50)
+
+	if err != errors.ErrInvalidDestinationId {
+		t.Errorf("Expected ErrInvalidDestinationId, got %s", err)
+	}
+}
+
+func TestTransferOriginNotFound(t *testing.T) {
+	service := mock_service.NewMockAccountService(gomock.NewController(t))
+	controller := NewAccountController(service)
+
+	service.EXPECT().GetAccount("1").Return(nil, false).Times(1)
+
+	_, err := controller.PostTransferEventController("1", "2", 50)
+
+	if err != errors.ErrOriginAccountNotFound {
+		t.Errorf("Expected ErrOriginAccountNotFound, got %s", err)
+	}
+}
+
+func TestTransferDestinationNotFound(t *testing.T) {
+	service := mock_service.NewMockAccountService(gomock.NewController(t))
+	controller := NewAccountController(service)
+
+	gomock.InOrder(
+		service.EXPECT().GetAccount("1").Return(&entity.Account{Id: "1", Balance: 100}, true).Times(1),
+		service.EXPECT().GetAccount("2").Return(nil, false).Times(1),
+		service.EXPECT().AddAccount("2", 0).Return(&entity.Account{Id: "2", Balance: 0}, true).Times(1),
+	)
+
+	res, _ := controller.PostTransferEventController("1", "2", 50)
+
+	if res != "{\"origin\": {\"id\":\"1\", \"balance\":50}, \"destination\": {\"id\":\"2\", \"balance\":50}}" {
+		t.Errorf("Expected {\"origin\": {\"id\":\"1\", \"balance\":50}, \"destination\": {\"id\":\"2\", \"balance\":50}}, got %s", res)
+	}
+
 }
 
 func TestTransferZero(t *testing.T) {

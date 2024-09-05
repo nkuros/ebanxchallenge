@@ -40,9 +40,12 @@ func (m *MockAccountService) EXPECT() *MockAccountServiceMockRecorder {
 }
 
 // AddAccount mocks base method.
-func (m *MockAccountService) AddAccount(originId string, Balance int) {
+func (m *MockAccountService) AddAccount(originId string, Balance int) (*entity.Account, bool) {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "AddAccount", originId, Balance)
+	ret := m.ctrl.Call(m, "AddAccount", originId, Balance)
+	ret0, _ := ret[0].(*entity.Account)
+	ret1, _ := ret[1].(bool)
+	return ret0, ret1
 }
 
 // AddAccount indicates an expected call of AddAccount.

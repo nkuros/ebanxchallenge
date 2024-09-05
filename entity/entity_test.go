@@ -1,4 +1,4 @@
-package model
+package entity
 
 import (
 	"testing"
@@ -31,4 +31,3 @@ func TestTransfer(t *testing.T) {
 		t.Errorf("Expected 50, got %d", target.Balance)
 	}
 }
-

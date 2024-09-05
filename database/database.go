@@ -1,6 +1,5 @@
 package database
 
-import "github.com/nkuros/ebanxchallenge/model"
+import "github.com/nkuros/ebanxchallenge/entity"
 
-var Accounts = make(map[int]*model.Account)
-
+var Accounts = make(map[string]*entity.Account)

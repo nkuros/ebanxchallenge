@@ -6,24 +6,30 @@ import (
 	"log"
 	"net"
 	"net/http"
-	"os"
+
+	// "os"
 
 	"github.com/nkuros/ebanxchallenge/constants"
 	"github.com/nkuros/ebanxchallenge/handler"
+	"github.com/nkuros/ebanxchallenge/service"
+	"github.com/nkuros/ebanxchallenge/controller"
 )
-
 
 
 func main() {
 
 	ctx := context.Background()
 
+	accountService := service.NewAccountService()
+	accountController := controller.NewAccountController(accountService)
+	accountHandler := handler.NewAccountHandler(accountController)
+
+
 	handlers := http.NewServeMux()
-	handlers.HandleFunc("/", handler.GetRootHandler)
-	handlers.HandleFunc("/balance", handler.GetBalanceHandler)
-	handlers.HandleFunc("/event", handler.PostEventHandler) 
-	handlers.HandleFunc("/delete", handler.PostDeleteHandler) 
-	
+	handlers.HandleFunc("/", accountHandler.GetRootHandler)
+	handlers.HandleFunc("/balance", accountHandler.GetBalanceHandler)
+	handlers.HandleFunc("/event", accountHandler.PostEventHandler)
+	handlers.HandleFunc("/delete", accountHandler.PostDeleteHandler)
 
 	server := &http.Server{
 		Addr:    constants.PORT,
@@ -33,12 +39,12 @@ func main() {
 			return ctx
 		},
 	}
-	
+
 	err := server.ListenAndServe()
 	if errors.Is(err, http.ErrServerClosed) {
 		log.Fatal(err)
 	} else if err != nil {
 		log.Fatal(err)
-		os.Exit(1)
+		// os.Exit(1)
 	}
 }

@@ -2,7 +2,6 @@ package handler
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -35,7 +34,7 @@ func (h *accountHandler) GetRootHandler(w http.ResponseWriter, req *http.Request
 	ctx := req.Context()
 
 	log.Printf("%s GET request\n", ctx.Value(constants.ADDRESS))
-	io.WriteString(w, "EBANX Challenge Root\n")
+	io.WriteString(w, "OK")
 }
 
 func (h *accountHandler) GetBalanceHandler(w http.ResponseWriter, r *http.Request) {
@@ -45,18 +44,16 @@ func (h *accountHandler) GetBalanceHandler(w http.ResponseWriter, r *http.Reques
 
 	accountID := r.URL.Query().Get("account_id")
 
-
 	amount, err := h.accountController.GetBalanceController(accountID)
 
 	if err != nil {
-		w.WriteHeader(http.StatusNotFound)
 		log.Printf("Get Balance Error: %s account_id: %s", err.Error(), accountID)
-		res := fmt.Sprintf("%d %d", http.StatusNotFound, 0)
-		io.WriteString(w, res)
+		w.WriteHeader(http.StatusNotFound)
+		io.WriteString(w, "0")
 		return
 	}
-	res := fmt.Sprintf("%d %s", http.StatusOK, amount)
-	io.WriteString(w, res)
+
+	io.WriteString(w, amount)
 
 }
 
@@ -64,10 +61,10 @@ func (h *accountHandler) PostEventHandler(w http.ResponseWriter, req *http.Reque
 	ctx := req.Context()
 	log.Printf("%s/event POST request\n", ctx.Value(constants.ADDRESS))
 	if req.Body == nil {
-		w.WriteHeader(http.StatusNotFound)
-		res := fmt.Sprintf("%d %d", http.StatusNotFound, 0)
+
 		log.Printf("Account Event Error: %s", errors.ErrMissingBody.Error())
-		io.WriteString(w, res)
+		w.WriteHeader(http.StatusNotFound)
+		io.WriteString(w, "0")
 		return
 	}
 	decoder := json.NewDecoder(req.Body)
@@ -76,9 +73,8 @@ func (h *accountHandler) PostEventHandler(w http.ResponseWriter, req *http.Reque
 	err := decoder.Decode(&event)
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
-		res := fmt.Sprintf("%d %d", http.StatusNotFound, 0)
 		log.Printf("Account Event Error: %s", err.Error())
-		io.WriteString(w, res)
+		io.WriteString(w, "0")
 		return
 	}
 
@@ -96,16 +92,14 @@ func (h *accountHandler) PostEventHandler(w http.ResponseWriter, req *http.Reque
 	}
 
 	if err != nil {
-		w.WriteHeader(http.StatusNotFound)
-		res := fmt.Sprintf("%d %d", http.StatusNotFound, 0)
 		log.Printf("Account Event Error: %s", err.Error())
-		io.WriteString(w, res)
+		w.WriteHeader(http.StatusNotFound)
+		io.WriteString(w, "0")
 		return
 	}
 
 	w.WriteHeader(http.StatusCreated)
-	response := fmt.Sprintf("%d %s", http.StatusCreated, res)
-	io.WriteString(w, response)
+	io.WriteString(w, res)
 
 }
 

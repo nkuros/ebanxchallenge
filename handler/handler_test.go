@@ -28,7 +28,7 @@ func TestGetRoot(t *testing.T) {
 		t.Errorf("handler returned wrong status code: got %v want %v",
 			status, http.StatusOK)
 	}
-	expected := "EBANX Challenge Root\n"
+	expected := "OK"
 	if recorder.Body.String() != expected {
 		t.Errorf("handler returned unexpected body: got %v want %v",
 			recorder.Body.String(), expected)
@@ -51,7 +51,7 @@ func TestGetBalance(t *testing.T) {
 		t.Errorf("handler returned wrong status code: got %v want %v",
 			status, http.StatusOK)
 	}
-	expected := fmt.Sprintf("%d %s", http.StatusOK, "100")
+	expected :="100"
 	if recorder.Body.String() != expected {
 		t.Errorf("handler returned unexpected body: got %v want %v",
 			recorder.Body.String(), expected)
@@ -74,7 +74,7 @@ func TestGetBalanceInvalid(t *testing.T) {
 		t.Errorf("handler returned wrong status code: got %v want %v",
 			status, http.StatusNotFound)
 	}
-	expected := "404 0"
+	expected := "0"
 	if recorder.Body.String() != expected {
 		t.Errorf("handler returned unexpected body: got %v want %v",
 			recorder.Body.String(), expected)
@@ -98,7 +98,7 @@ func TestGetBalanceMissing(t *testing.T) {
 		t.Errorf("handler returned wrong status code: got %v want %v",
 			status, http.StatusNotFound)
 	}
-	expected := "404 0"
+	expected := "0"
 	if recorder.Body.String() != expected {
 		t.Errorf("handler returned unexpected body: got %v want %v",
 			recorder.Body.String(), expected)
@@ -106,7 +106,7 @@ func TestGetBalanceMissing(t *testing.T) {
 }
 
 func TestPostEvent(t *testing.T) {
-	req, err := http.NewRequest("POST", "/event", strings.NewReader("{\"type\":\"deposit\", \"origin\":\"1\", \"amount\":100}"))
+	req, err := http.NewRequest("POST", "/event", strings.NewReader("{\"type\":\"deposit\", \"destination\":\"1\", \"amount\":100}"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -122,7 +122,7 @@ func TestPostEvent(t *testing.T) {
 		t.Errorf("handler returned wrong status code: got %v want %v",
 			status, http.StatusCreated)
 	}
-	expected := fmt.Sprintf("%d {\"destination\": {\"id\":\"1\", \"balance\":100}}", http.StatusCreated)
+	expected := "{\"destination\": {\"id\":\"1\", \"balance\":100}}"
 	if recorder.Body.String() != expected {
 		t.Errorf("handler returned unexpected body: got %v want %v",
 			recorder.Body.String(), expected)
@@ -144,7 +144,7 @@ func TestPostEventInvalid(t *testing.T) {
 		t.Errorf("handler returned wrong status code: got %v want %v",
 			status, http.StatusNotFound)
 	}
-	expected := "404 0"
+	expected := "0"
 	if recorder.Body.String() != expected {
 		t.Errorf("handler returned unexpected body: got %v want %v",
 			recorder.Body.String(), expected)
@@ -166,7 +166,7 @@ func TestPostEventMissingBody(t *testing.T) {
 		t.Errorf("handler returned wrong status code: got %v want %v",
 			status, http.StatusNotFound)
 	}
-	expected := "404 0"
+	expected := "0"
 	if recorder.Body.String() != expected {
 		t.Errorf("handler returned unexpected body: got %v want %v",
 			recorder.Body.String(), expected)
@@ -188,7 +188,7 @@ func TestPostEventMissingField(t *testing.T) {
 		t.Errorf("handler returned wrong status code: got %v want %v",
 			status, http.StatusNotFound)
 	}
-	expected := "404 0"
+	expected := "0"
 	if recorder.Body.String() != expected {
 		t.Errorf("handler returned unexpected body: got %v want %v",
 			recorder.Body.String(), expected)
